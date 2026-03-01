@@ -1,0 +1,37 @@
+{
+    "name": "chrome-user-agent",
+    "version": "0.1.0",
+    "description": "User agent detection and spoofing for Chrome extensions — parse UA strings, detect browsers, override user agent, and device emulation for MV3.",
+    "author": "Zovo <hello@zovo.one>",
+    "license": "MIT",
+    "keywords": [
+        "chrome-extension",
+        "user-agent",
+        "detect",
+        "spoof",
+        "browser",
+        "device",
+        "manifest-v3",
+        "browser-extension",
+        "parsing"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/theluckystrike/chrome-user-agent.git"
+    },
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "files": [
+        "dist",
+        "README.md",
+        "LICENSE"
+    ],
+    "scripts": {
+        "build": "tsc",
+        "prepublishOnly": "npm run build"
+    },
+    "devDependencies": {
+        "@types/chrome": "^0.0.260",
+        "typescript": "^5.3.3"
+    }
+}
