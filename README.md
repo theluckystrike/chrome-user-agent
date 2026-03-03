@@ -1,12 +1,26 @@
-# chrome-user-agent — User Agent Detection and Spoofing
-> **Built by [Zovo](https://zovo.one)** | `npm i chrome-user-agent`
+# chrome-user-agent
 
-Parse UA strings, detect browser/OS, spoof via declarativeNetRequest, and common presets.
+Manage user agent strings in Chrome extensions.
 
-```typescript
-import { UserAgent } from 'chrome-user-agent';
-const info = UserAgent.parse();
-await UserAgent.spoof(UserAgent.PRESETS.IPHONE);
-await UserAgent.resetSpoof();
+## Overview
+
+chrome-user-agent provides utilities to get and set user agent strings.
+
+## Installation
+
+```bash
+npm install chrome-user-agent
 ```
-MIT License
+
+## Usage
+
+```javascript
+import { UserAgent } from 'chrome-user-agent';
+
+const ua = await UserAgent.get();
+await UserAgent.set('Custom User Agent');
+```
+
+## License
+
+MIT
