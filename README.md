@@ -1,8 +1,15 @@
 # chrome-user-agent
 
+[![npm version](https://img.shields.io/npm/v/chrome-user-agent)](https://npmjs.com/package/chrome-user-agent)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
+[![Discord](https://img.shields.io/badge/Discord-Zovo-blueviolet.svg?logo=discord)](https://discord.gg/zovo)
+[![Website](https://img.shields.io/badge/Website-zovo.one-blue)](https://zovo.one)
+[![GitHub Stars](https://img.shields.io/github/stars/theluckystrike/chrome-user-agent?style=social)](https://github.com/theluckystrike/chrome-user-agent)
+
 > User agent detection and spoofing for Chrome extensions -- parse UA strings, detect browsers, override user agent headers, and device emulation for MV3.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+Part of the [Zovo](https://zovo.one) developer tools family.
 
 ## Install
 
@@ -82,3 +89,23 @@ A collection of common user agent strings:
 ## License
 
 MIT
+
+## See Also
+
+- [chrome-extension-core](https://github.com/theluckystrike/chrome-extension-core) - Essential utilities for Chrome extension development
+- [chrome-identity-helper](https://github.com/theluckystrike/chrome-identity-helper) - OAuth2 identity management
+- [webext-privacy-guard](https://github.com/theluckystrike/webext-privacy-guard) - Privacy and PII utilities
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+Built by [Zovo](https://zovo.one)
