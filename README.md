@@ -1,28 +1,10 @@
 # chrome-user-agent
 
-[![npm version](https://img.shields.io/npm/v/chrome-user-agent)](https://npmjs.com/package/chrome-user-agent)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
-[![Chrome Web Extension](https://img.shields.io/badge/Chrome-Web%20Extension-orange.svg)](https://developer.chrome.com/docs/extensions/)
-[![CI Status](https://github.com/theluckystrike/chrome-user-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/theluckystrike/chrome-user-agent/actions)
-[![Discord](https://img.shields.io/badge/Discord-Zovo-blueviolet.svg?logo=discord)](https://discord.gg/zovo)
-[![Website](https://img.shields.io/badge/Website-zovo.one-blue)](https://zovo.one)
-[![GitHub Stars](https://img.shields.io/github/stars/theluckystrike/chrome-user-agent?style=social)](https://github.com/theluckystrike/chrome-user-agent)
+> User agent detection and spoofing for Chrome extensions -- parse UA strings, detect browsers, override user agent headers, and device emulation for MV3.
 
-> Manage user agent strings in Chrome extensions.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-**chrome-user-agent** provides utilities to get and set user agent strings. Part of the Zovo Chrome extension utilities.
-
-Part of the [Zovo](https://zovo.one) developer tools family.
-
-## Features
-
-- ✅ **Get User Agent** - Get current user agent
-- ✅ **Set User Agent** - Set custom user agent
-- ✅ **Presets** - Common browser user agents
-- ✅ **TypeScript Support** - Full type definitions included
-
-## Installation
+## Install
 
 ```bash
 npm install chrome-user-agent
@@ -30,45 +12,73 @@ npm install chrome-user-agent
 
 ## Usage
 
-```javascript
+```ts
 import { UserAgent } from 'chrome-user-agent';
 
-// Get current user agent
-const ua = await UserAgent.get();
+// Parse the current browser's user agent
+const info = UserAgent.parse();
+console.log(info.browser);  // "Chrome"
+console.log(info.version);  // "120.0.0.0"
+console.log(info.os);       // "macOS"
+console.log(info.mobile);   // false
+console.log(info.engine);   // "WebKit"
 
-// Set custom user agent
-await UserAgent.set('Custom User Agent');
+// Parse an arbitrary user agent string
+const mobile = UserAgent.parse(UserAgent.PRESETS.IPHONE);
+console.log(mobile.browser); // "Safari"
+console.log(mobile.os);      // "iOS"
+console.log(mobile.mobile);  // true
 
-// Use preset
-await UserAgent.set(UserAgent.PRESETS.CHROME_MAC);
+// Spoof the user agent header via declarativeNetRequest
+await UserAgent.spoof(UserAgent.PRESETS.FIREFOX_WIN);
+
+// Remove the user agent override
+await UserAgent.resetSpoof();
+
+// Available presets
+console.log(UserAgent.PRESETS.CHROME_WIN);
+console.log(UserAgent.PRESETS.CHROME_MAC);
+console.log(UserAgent.PRESETS.FIREFOX_WIN);
+console.log(UserAgent.PRESETS.SAFARI_MAC);
+console.log(UserAgent.PRESETS.IPHONE);
+console.log(UserAgent.PRESETS.ANDROID);
 ```
 
-## Contributing
+## API
 
-Contributions are welcome! Please follow these steps:
+### `class UserAgent`
 
-1. **Fork** the repository
-2. **Create** a feature branch: `git checkout -b feature/ua-feature`
-3. **Make** your changes
-4. **Test** your changes: `npm test`
-5. **Commit** your changes: `git commit -m 'Add new feature'`
-6. **Push** to the branch: `git push origin feature/ua-feature`
-7. **Submit** a Pull Request
+#### `static parse(ua?: string): { browser: string; version: string; os: string; mobile: boolean; engine: string }`
 
-## See Also
+Parse a user agent string and return detected properties. If `ua` is omitted, uses `navigator.userAgent`. Detects the following:
 
-### Related Zovo Repositories
+- **browser** -- `"Chrome"`, `"Edge"`, `"Opera"`, `"Firefox"`, `"Safari"`, or `"Unknown"`
+- **version** -- version string (e.g. `"120.0.0.0"`)
+- **os** -- `"Windows"`, `"macOS"`, `"Linux"`, `"Android"`, `"iOS"`, or `"Unknown"`
+- **mobile** -- `true` if the UA contains mobile identifiers
+- **engine** -- `"WebKit"`, `"Gecko"`, or `"Unknown"`
 
-- [webext-privacy-guard](https://github.com/theluckystrike/webext-privacy-guard) - Privacy utilities
-- [chrome-extension-starter-mv3](https://github.com/theluckystrike/chrome-extension-starter-mv3) - Extension template
+#### `static spoof(userAgent: string): Promise<void>`
 
-### Zovo Chrome Extensions
+Override the `User-Agent` request header for all main frame, sub-frame, and XMLHttpRequest traffic using Chrome's `declarativeNetRequest` API. Requires the `declarativeNetRequest` permission.
 
-- [Zovo Tab Manager](https://chrome.google.com/webstore/detail/zovo-tab-manager) - Manage tabs efficiently
-- [Zovo Focus](https://chrome.google.com/webstore/detail/zovo-focus) - Block distractions
+#### `static resetSpoof(): Promise<void>`
 
-Visit [zovo.one](https://zovo.one) for more information.
+Remove any active user agent override set by `spoof()`.
+
+#### `static readonly PRESETS`
+
+A collection of common user agent strings:
+
+| Key            | Browser / Device                  |
+| -------------- | --------------------------------- |
+| `CHROME_WIN`   | Chrome 120 on Windows 10          |
+| `CHROME_MAC`   | Chrome 120 on macOS               |
+| `FIREFOX_WIN`  | Firefox 121 on Windows 10         |
+| `SAFARI_MAC`   | Safari 17.2 on macOS              |
+| `IPHONE`       | Safari 17.2 on iPhone (iOS 17.2)  |
+| `ANDROID`      | Chrome 120 on Android 14          |
 
 ## License
 
-MIT — [Zovo](https://zovo.one)
+MIT
