@@ -3,117 +3,97 @@
 [![npm version](https://img.shields.io/npm/v/chrome-user-agent)](https://npmjs.com/package/chrome-user-agent)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
-[![Discord](https://img.shields.io/badge/Discord-Zovo-blueviolet.svg?logo=discord)](https://discord.gg/zovo)
-[![Website](https://img.shields.io/badge/Website-zovo.one-blue)](https://zovo.one)
-[![GitHub Stars](https://img.shields.io/github/stars/theluckystrike/chrome-user-agent?style=social)](https://github.com/theluckystrike/chrome-user-agent)
 
-> User agent detection and spoofing for Chrome extensions -- parse UA strings, detect browsers, override user agent headers, and device emulation for MV3.
+User agent parsing and spoofing for Chrome extensions. Detects browser, version, OS, engine, and mobile status from any UA string. Overrides the outgoing User-Agent header at the network level using the declarativeNetRequest API (Manifest V3).
 
-Part of the [Zovo](https://zovo.one) developer tools family.
-
-## Install
+INSTALL
 
 ```bash
 npm install chrome-user-agent
 ```
 
-## Usage
+QUICK START
 
 ```ts
 import { UserAgent } from 'chrome-user-agent';
 
-// Parse the current browser's user agent
 const info = UserAgent.parse();
-console.log(info.browser);  // "Chrome"
-console.log(info.version);  // "120.0.0.0"
-console.log(info.os);       // "macOS"
-console.log(info.mobile);   // false
-console.log(info.engine);   // "WebKit"
-
-// Parse an arbitrary user agent string
-const mobile = UserAgent.parse(UserAgent.PRESETS.IPHONE);
-console.log(mobile.browser); // "Safari"
-console.log(mobile.os);      // "iOS"
-console.log(mobile.mobile);  // true
-
-// Spoof the user agent header via declarativeNetRequest
-await UserAgent.spoof(UserAgent.PRESETS.FIREFOX_WIN);
-
-// Remove the user agent override
-await UserAgent.resetSpoof();
-
-// Available presets
-console.log(UserAgent.PRESETS.CHROME_WIN);
-console.log(UserAgent.PRESETS.CHROME_MAC);
-console.log(UserAgent.PRESETS.FIREFOX_WIN);
-console.log(UserAgent.PRESETS.SAFARI_MAC);
-console.log(UserAgent.PRESETS.IPHONE);
-console.log(UserAgent.PRESETS.ANDROID);
+// => { browser: "Chrome", version: "120.0.0.0", os: "macOS", mobile: false, engine: "WebKit" }
 ```
 
-## API
+PARSING
 
-### `class UserAgent`
+UserAgent.parse accepts an optional UA string. When called without arguments it reads navigator.userAgent automatically.
 
-#### `static parse(ua?: string): { browser: string; version: string; os: string; mobile: boolean; engine: string }`
+```ts
+const result = UserAgent.parse(someString);
+```
 
-Parse a user agent string and return detected properties. If `ua` is omitted, uses `navigator.userAgent`. Detects the following:
+The returned object has the following shape.
 
-- **browser** -- `"Chrome"`, `"Edge"`, `"Opera"`, `"Firefox"`, `"Safari"`, or `"Unknown"`
-- **version** -- version string (e.g. `"120.0.0.0"`)
-- **os** -- `"Windows"`, `"macOS"`, `"Linux"`, `"Android"`, `"iOS"`, or `"Unknown"`
-- **mobile** -- `true` if the UA contains mobile identifiers
-- **engine** -- `"WebKit"`, `"Gecko"`, or `"Unknown"`
+```ts
+{
+  browser: string   // "Chrome" | "Edge" | "Opera" | "Firefox" | "Safari" | "Unknown"
+  version: string   // e.g. "120.0.0.0"
+  os: string        // "Windows" | "macOS" | "Linux" | "Android" | "iOS" | "Unknown"
+  mobile: boolean   // true when the UA contains Mobile, Android, iPhone, or iPad
+  engine: string    // "WebKit" | "Gecko" | "Unknown"
+}
+```
 
-#### `static spoof(userAgent: string): Promise<void>`
+Detection order for browsers is Edge, Opera, Chrome, Firefox, Safari. This matters because Edge and Opera both include "Chrome" in their UA strings.
 
-Override the `User-Agent` request header for all main frame, sub-frame, and XMLHttpRequest traffic using Chrome's `declarativeNetRequest` API. Requires the `declarativeNetRequest` permission.
+SPOOFING
 
-#### `static resetSpoof(): Promise<void>`
+UserAgent.spoof replaces the User-Agent header on all main_frame, sub_frame, and xmlhttprequest traffic using chrome.declarativeNetRequest. Your extension manifest needs the declarativeNetRequest permission.
 
-Remove any active user agent override set by `spoof()`.
+```ts
+await UserAgent.spoof(UserAgent.PRESETS.FIREFOX_WIN);
+```
 
-#### `static readonly PRESETS`
+To remove the override and restore the original header, call resetSpoof.
 
-A collection of common user agent strings:
+```ts
+await UserAgent.resetSpoof();
+```
 
-| Key            | Browser / Device                  |
-| -------------- | --------------------------------- |
-| `CHROME_WIN`   | Chrome 120 on Windows 10          |
-| `CHROME_MAC`   | Chrome 120 on macOS               |
-| `FIREFOX_WIN`  | Firefox 121 on Windows 10         |
-| `SAFARI_MAC`   | Safari 17.2 on macOS              |
-| `IPHONE`       | Safari 17.2 on iPhone (iOS 17.2)  |
-| `ANDROID`      | Chrome 120 on Android 14          |
+Both methods use rule ID 9999 internally. If your extension uses declarativeNetRequest for other rules, avoid that ID.
 
-## License
+PRESETS
 
-MIT
+UserAgent.PRESETS provides six ready-made UA strings.
 
-## See Also
+```
+CHROME_WIN    Chrome 120 on Windows 10
+CHROME_MAC    Chrome 120 on macOS
+FIREFOX_WIN   Firefox 121 on Windows 10
+SAFARI_MAC    Safari 17.2 on macOS
+IPHONE        Safari 17.2 on iPhone (iOS 17.2)
+ANDROID       Chrome 120 on Android 14
+```
 
-### Related Zovo Repositories
+Use them directly with spoof or pass them to parse for testing.
 
-- [chrome-extension-core](https://github.com/theluckystrike/chrome-extension-core) - Essential utilities for Chrome extension development
-- [chrome-identity-helper](https://github.com/theluckystrike/chrome-identity-helper) - OAuth2 identity management
-- [webext-privacy-guard](https://github.com/theluckystrike/webext-privacy-guard) - Privacy and PII utilities
-- [chrome-extension-starter-mv3](https://github.com/theluckystrike/chrome-extension-starter-mv3) - Production-ready Chrome extension starter
+```ts
+const ios = UserAgent.parse(UserAgent.PRESETS.IPHONE);
+// => { browser: "Safari", version: "17.2", os: "iOS", mobile: true, engine: "WebKit" }
+```
 
-### Zovo Chrome Extensions
+BUILDING FROM SOURCE
 
-- [Zovo Tab Manager](https://chrome.google.com/webstore/detail/zovo-tab-manager) - Manage tabs efficiently
-- [Zovo Focus](https://chrome.google.com/webstore/detail/zovo-focus) - Block distractions
+```bash
+git clone https://github.com/theluckystrike/chrome-user-agent.git
+cd chrome-user-agent
+npm install
+npm run build
+```
 
-Visit [zovo.one](https://zovo.one) for more information.
+Output lands in dist/ as CommonJS with type declarations and source maps.
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+LICENSE
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+MIT. See LICENSE file for details.
 
 ---
 
-Built by [Zovo](https://zovo.one)
+A theluckystrike project. Part of the zovo.one extension studio.
